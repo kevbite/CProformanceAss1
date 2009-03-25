@@ -11,7 +11,11 @@
 #include <vector>
 #include <algorithm>
 #include <conio.h>
+
 #include <boost/foreach.hpp>
+#include <boost/bind.hpp> 
+#include "threadpool.hpp"
+
 
 #include "EmployeeCsvReader.h"
 #include "EmployeeCsvWriter.h"
@@ -71,8 +75,11 @@ int _tmain(int argc, _TCHAR* argv[])
 	//####################Start everything#####################
 	//#########################################################	
 
+	//timer for timing stuff
 	MethodTimer timer;
-
+	//thread pool
+	boost::threadpool::pool pool(100);
+    
 
 	//#########################################################
 	//##################Run Question 1#########################
@@ -96,10 +103,20 @@ int _tmain(int argc, _TCHAR* argv[])
 	timer.start();
 	//total reponses is 7184
 	//arrange the data so that all bad data is at end
+	CheckEmployeeData check(partialResponses, valid);
 
-	std::remove_copy_if(emps->begin(),
+	BOOST_FOREACH(  Employee* employee, *emps )
+	{
+		//None Threaded
+		boost::bind<void>( check, employee )();
+		//Threaded
+		//pool.schedule(boost::bind<void>( check, employee ));
+	}
+	pool.wait();
+
+	/*std::remove_copy_if(emps->begin(),
 		emps->end(), std::back_inserter(*valid),
-							CheckEmployeeData(partialResponses));
+							CheckEmployeeData(partialResponses));*/
 	timer.end();
 	//output the counts
 	std::cout << "Partial Invalid Results count :" << *partialResponses << std::endl;
