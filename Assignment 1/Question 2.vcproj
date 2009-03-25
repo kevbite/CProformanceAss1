@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;D:\Uni Year 4\Effective C++\boost_1_38_0&quot;"
+				AdditionalIncludeDirectories="&quot;D:\Uni Year 4\Effective C++\boost_1_38_0\libs\thread\src\win32&quot;;&quot;D:\Uni Year 4\Effective C++\boost_1_38_0&quot;;&quot;D:\Uni Year 4\Effective C++\threadpool-0_2_5-src\threadpool\boost&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,6 +62,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="&quot;C:\Program Files (x86)\boost\boost_1_38\lib&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				TargetMachine="1"

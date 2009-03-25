@@ -6,9 +6,10 @@ typedef std::vector<Employee*> empContainer;
 	{
 	public:
 		int *partialResponses_;
+		empContainer *valid_;
 	public:
-		CheckEmployeeData(int *);
-		bool operator() (Employee*);
+		CheckEmployeeData(int *,empContainer *valid);
+		void operator() (Employee*);
 
 	};
 

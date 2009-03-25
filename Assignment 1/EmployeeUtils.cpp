@@ -1,20 +1,22 @@
 #include "EmployeeUtils.h"
 
-CheckEmployeeData::CheckEmployeeData(int *partialResponses)
-:partialResponses_(partialResponses)
+CheckEmployeeData::CheckEmployeeData(int *partialResponses, empContainer *valid)
+:partialResponses_(partialResponses), valid_(valid)
 {}
-bool CheckEmployeeData::operator ()(Employee *emp)
+void CheckEmployeeData::operator ()(Employee *emp)
 {
 	if(emp->hasTotalInvalidData())
 	{
-		return true;
+		return;
 	}
 	if(emp->hasPartialInvalidData())
 	{
 		++(*partialResponses_);
-		return true;
+		return;
 	}
-	return false;
+	valid_->push_back(emp);
+	return;
+
 }
 EmployeeUtils::LessThan::LessThan(const int &age)
 :age_(age)
