@@ -1,13 +1,17 @@
 #pragma once
 #include "Employee.h"
+#include <boost/thread/mutex.hpp>
 
 typedef std::vector<Employee*> empContainer;
 	class CheckEmployeeData
 	{
-	public:
+	private:
+		boost::mutex count_mutex_;
+		boost::mutex pushback_mutex_;
 		int *partialResponses_;
 		empContainer *valid_;
 	public:
+
 		CheckEmployeeData(int *,empContainer *valid);
 		void operator() (Employee*);
 

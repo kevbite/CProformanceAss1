@@ -11,9 +11,13 @@ void CheckEmployeeData::operator ()(Employee *emp)
 	}
 	if(emp->hasPartialInvalidData())
 	{
+		//boost::mutex::scoped_lock lock(count_mutex_);
+
 		++(*partialResponses_);
 		return;
 	}
+
+	boost::mutex::scoped_lock lock(pushback_mutex_);
 	valid_->push_back(emp);
 	return;
 
