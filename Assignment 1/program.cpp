@@ -24,10 +24,10 @@
 
 #include "MethodTimer.h"
 
-const char *CSV_DATA_FILE = "D:\\Uni Year 4\\Effective C++\\Performance Assignment\\data.csv";
-const char *CSV_VALID_DATA_FILE = "D:\\Uni Year 4\\Effective C++\\Performance Assignment\\valid.csv";
-const char *CSV_MEAN_DATA_FILE = "D:\\Uni Year 4\\Effective C++\\Performance Assignment\\mean.csv";
-const char *CSV_RAG_DATA_FILE = "D:\\Uni Year 4\\Effective C++\\Performance Assignment\\RAG.csv";
+const char *CSV_DATA_FILE = "c:\\temp\\data.csv";
+const char *CSV_VALID_DATA_FILE = "c:\\temp\\valid.csv";
+const char *CSV_MEAN_DATA_FILE = "c:\\temp\\mean.csv";
+const char *CSV_RAG_DATA_FILE = "c:\\temp\\RAG.csv";
 
 void question4_i(empContainer *empsPtr)
 {
@@ -74,11 +74,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	//#########################################################
 	//####################Start everything#####################
 	//#########################################################	
-
+	
+	//Set priority of this process to realtime
+	SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 	//timer for timing stuff
 	MethodTimer timer;
 	//thread pool
-	boost::threadpool::pool pool(100);
+	boost::threadpool::pool pool(10);
     
 
 	//#########################################################
@@ -108,9 +110,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	BOOST_FOREACH(  Employee* employee, *emps )
 	{
 		//None Threaded
-		boost::bind<void>( check, employee )();
+		//boost::bind<void>(boost::ref(check), employee )();
 		//Threaded
-		//pool.schedule(boost::bind<void>( check, employee ));
+		pool.schedule(boost::bind<void>( boost::ref(check), employee ));
 	}
 	pool.wait();
 
