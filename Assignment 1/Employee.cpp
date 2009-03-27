@@ -1,6 +1,4 @@
 #include "Employee.h"
-#include <numeric>
-#include <boost/foreach.hpp>
 
 Employee::Employee(void)
 {
@@ -153,7 +151,7 @@ textRSetPercContainer *Employee::getTextResultSets()
 }
 void Employee::calcTextResultSets()
 {
-	textResultSet_ = new std::vector<std::string>();
+	textResultSet_ = new textRSetPercContainer();
 	textResultSet_->reserve(7);
 
 	for(resultsContainer::const_iterator start(results_->begin()); start!=results_->end(); start+=10)
@@ -167,13 +165,13 @@ void Employee::calcTextResultSets()
 
 		if(*sumPtr<20) // < 40% mark
 		{
-			textResultSet_->push_back("Red");
+			textResultSet_->push_back(&RED_TEXT);
 		}else if(*sumPtr>=30) // >= 60% mark
 		{
-			textResultSet_->push_back("Green");
+			textResultSet_->push_back(&GREEN_TEXT);
 		}else //40% ~ 59%
 		{
-			textResultSet_->push_back("Amber");
+			textResultSet_->push_back(&AMBER_TEXT);
 		}
 	}
 

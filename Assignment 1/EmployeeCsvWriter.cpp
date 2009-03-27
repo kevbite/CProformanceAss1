@@ -98,7 +98,7 @@ void EmployeeCsvWriter::WriteCsvTextSummaryLine::operator ()(Employee *emp)
 	for(int i(0); i < emp->getResultSetPercentageMean()->size(); ++i)
 	{
 		//output the item to the stream
-		file_ << (*emp->getTextResultSets())[i];
+		file_ << *((*emp->getTextResultSets())[i]);
 		//if its not the last item
 		if(i!=(emp->getResultSetPercentageMean()->size()-1))
 			//we need to add a commer

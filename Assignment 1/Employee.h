@@ -5,14 +5,22 @@
 #include <iostream>
 #include <string>
 
+#include <numeric>
+#include <boost/foreach.hpp>
 
 #include "CalcSum.h"
 
 typedef std::vector<int> resultsContainer;
 typedef std::vector<int> rSetPercContainer;
-typedef std::vector<std::string> textRSetPercContainer;
+typedef std::vector<const std::string*> textRSetPercContainer;
+
+const std::string RED_TEXT = "Red";
+const std::string GREEN_TEXT = "Green";
+const std::string AMBER_TEXT = "Amber";
+
 class Employee
 {
+	
 private:
 	int *pinNo_;
 	int *age_;
@@ -22,8 +30,12 @@ private:
 	resultsContainer *results_;
 	rSetPercContainer *resultsSetsPerc_;
 	textRSetPercContainer *textResultSet_;
-public:
 
+	const char *Employee::GreenText;
+	const char *Employee::RedText;
+	const char *Employee::Amber;
+
+public:
 	Employee(void);
 	Employee(int *pinNo, int *age, double *los, std::string *ethnicGrp,
 		std::string *workBasis, resultsContainer *results);
