@@ -1,6 +1,6 @@
 #pragma once
 
-template< class C >
+template<class C>
 class Singleton
 {
 private: 
@@ -11,7 +11,7 @@ public:
     // Current instance getter
     static C* Current()
     {
-        if( Singleton<C>::CurrentInstance == NULL )
+        if(Singleton<C>::CurrentInstance == NULL)
         {
             Singleton<C>::CurrentInstance = new C;
         }
@@ -21,7 +21,7 @@ public:
     // Delete current instance
     static void DeleteCurrent()
     {
-        if( Singleton<C>::CurrentInstance != NULL )
+        if(Singleton<C>::CurrentInstance != NULL)
         {
             delete Singleton<C>::CurrentInstance;
             Singleton<C>::CurrentInstance = NULL;
