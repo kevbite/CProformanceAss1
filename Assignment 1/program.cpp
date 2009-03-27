@@ -36,38 +36,173 @@ void question4_i(empContainer *empsPtr)
 		EmployeeUtils::CalcEmpMeanSets());
 }
 
-empContainer *question4_ii(empContainer *emps)//gets emps 30-39 and calc means sets
+void question4_ii(empContainer *emps, empContainer *results /*return*/)//gets emps 30-39 and calc means sets
 {
-	//create a new container for 30-39's
-	empContainer *emps30_39 = new empContainer();
-	emps30_39->reserve(1400);
+	//reserve the space
+	results->reserve(1400);
 	//arrange the data so emps 30-39 are at end
 	std::remove_copy_if(emps->begin(),emps->end(), 
-							std::back_inserter(*emps30_39),
+							std::back_inserter(*results),
 							EmployeeUtils::EmployeeAgeBetween(30, 39));
 
 	//get there mean results
-	std::for_each(emps30_39->begin(), emps30_39->end(), EmployeeUtils::CalcEmpMeanSets());
-
-	//return the valid data
-	return emps30_39;
+	std::for_each(results->begin(), results->end(), EmployeeUtils::CalcEmpMeanSets());
 }
 
-empContainer *question4_iii(empContainer *emps)//gets emps 30-39 and calc text means sets
+void question4_iii(empContainer *emps, empContainer *results /*return*/)//gets emps 30-39 and calc text means sets
 {
-	//create a new container for 30-39's
-	empContainer *emps30_39 = new empContainer();
-	emps30_39->reserve(1400);
+	//reserve space
+	results->reserve(1400);
 	//arrange the data so emps 30-39 are at end
 	std::remove_copy_if(emps->begin(),emps->end(), 
-							std::back_inserter(*emps30_39),
+							std::back_inserter(*results),
 							EmployeeUtils::EmployeeAgeBetween(30, 39));
 
-	//get there mean results
-	std::for_each(emps30_39->begin(), emps30_39->end(), EmployeeUtils::CalcEmpTextMeanSets());
+	//get the means
+	std::for_each(results->begin(), results->end(), EmployeeUtils::CalcEmpTextMeanSets());
+	
+}
 
-	//return the valid data
-	return emps30_39;
+void startSplit(empContainer::const_iterator &begin, empContainer::const_iterator &end,
+				CheckEmployeeData *check)
+{
+	
+	for(empContainer::const_iterator it = begin;it!=end;++it)
+		(*check)(*it);
+
+}
+void RunQuestion2(const empContainer const *emps)
+{
+	//#########################################################
+	//###################### Set Up ###########################
+	//#########################################################
+
+	//create our thread pool
+	boost::threadpool::pool pool(4);
+	//get our timer instance
+	MethodTimer *timer = MethodTimer::Current();
+
+	//#########################################################
+	//################# Run Question 2 ########################
+	//#########################################################
+
+	std::cout << "_____Question 2 - Strip all valid data______" << std::endl;
+
+	//set the start time on timer
+	timer->start();
+
+	//create a int to store partial Responses
+	int *partialResponses = new int(0);
+	//create a new valid container
+	empContainer *valid = new empContainer();
+	//reserve some space
+	valid->reserve(1603);
+
+	//get the vec size
+	int vecSize(emps->size());
+	//get a split size if we split it 4 times
+	int splitSize(vecSize/4);
+	//create the check functor
+	CheckEmployeeData check(partialResponses, valid);
+	
+	//schedule stuff on to the pool
+	pool.schedule(boost::bind<void>(&startSplit, emps->begin(), emps->begin()+splitSize, &check));
+	pool.schedule(boost::bind<void>(&startSplit, emps->begin()+splitSize, emps->begin()+(splitSize*2), &check));
+	pool.schedule(boost::bind<void>(&startSplit, emps->begin()+(splitSize*2), emps->begin()+(splitSize*3), &check));
+	pool.schedule(boost::bind<void>(&startSplit, emps->begin()+(splitSize*3), emps->end(), &check));
+
+	//wait until the pool finishes all its processing
+	pool.wait();
+
+	//stop the timer
+	timer->end();
+
+	//output the counts
+	//All Records should be 7184
+	std::cout << "All Record count :" << emps->size() << std::endl;
+	//Partial
+	std::cout << "Partial Invalid Results count :" << *partialResponses << std::endl;
+	//All Invalid should be 5582
+	std::cout << "Records with all fields Invalid :" << (emps->size() - valid->size()) - *partialResponses << std::endl;
+	//Valid should be 1602
+	std::cout << "Valid Data Count :" << valid->size() << std::endl;
+	
+	//display the time it took to get these results
+	timer->displayTimeTaken();
+
+	//Run Question 2 Save
+	std::cout << "Question 2 - Saving Data" << std::endl;
+	EmployeeCsvWriter().saveData(valid, CSV_VALID_DATA_FILE);
+
+}
+void RunQuestion3()
+{
+	//Set up somethings
+	MethodTimer *timer = MethodTimer::Current();
+
+	//Load Valid Data
+	std::cout << "______Question 3 - Load Data______" << std::endl;
+	empContainer *validEmpsQ3 = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
+
+	std::cout << "______Question 3 - Count employees less than 30____" << std::endl;
+
+	timer->start();
+	//count how manny emps as less than 30
+	int lessThan30Count = std::count_if(validEmpsQ3->begin(),
+						validEmpsQ3->end(), EmployeeUtils::LessThan(30));
+	//get end time
+	timer->end();
+	//display count
+	std::cout << "Emps less than 30: " << lessThan30Count << std::endl;
+	//display time taken
+	timer->displayTimeTaken();
+}
+void RunQuestion4()
+{
+	//Set up bit
+	//timer we use for timing
+	MethodTimer *timer = MethodTimer::Current();
+	//create our thread pool for subQuestions
+	boost::threadpool::pool pool(2);
+	
+	//Load 3 sets of questions for Question 4
+	std::cout << "_________Question 4 - Load Data__________" << std::endl;
+	empContainer *EmpsQ4_i = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
+	empContainer *EmpsQ4_ii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
+	empContainer *EmpsQ4_iii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
+
+	std::cout << "_______Running all Question 4 subitems________" << std::endl;
+	timer->start();
+	
+	//create our pointer that will return our results
+	empContainer *EmpsQ4_ii_c = new empContainer();
+	empContainer *EmpsQ4_iii_c = new empContainer();
+
+
+	//Runs Q4 ii - emps 30-39 and calc means sets
+	//question4_ii(EmpsQ4_ii, EmpsQ4_ii_c, &poolQii);
+	pool.schedule(boost::bind<void>(&question4_ii, EmpsQ4_ii, EmpsQ4_ii_c));
+	//Run Q4 iii - age 30-39 + text summery
+	//question4_iii(EmpsQ4_iii, EmpsQ4_iii_c, &poolQii);
+	pool.schedule(boost::bind<void>(&question4_iii, EmpsQ4_iii, EmpsQ4_iii_c));
+
+	//while we wait for the other threads to process we might as well complete
+	//the less heavy question before waiting for threads.
+	//Run Q4 i - Run Find Percentage Mean Score for sub Sets
+	question4_i(EmpsQ4_i);
+
+	//wait till all our threads have completed
+	pool.wait();
+	//stop the timer
+	timer->end();
+	timer->displayTimeTaken();
+
+	//save data from Q4 iii
+	std::cout << "Saving All data for Question" << std::endl;
+
+	//Save the data we have just got
+	EmployeeCsvWriter().saveSummary(EmpsQ4_ii_c, CSV_MEAN_DATA_FILE);
+ 	EmployeeCsvWriter().saveTextSummary(EmpsQ4_iii_c, CSV_RAG_DATA_FILE);
 }
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -79,119 +214,39 @@ int _tmain(int argc, _TCHAR* argv[])
 	SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
 	//timer for timing stuff
 	MethodTimer timer;
-	//thread pool
-	boost::threadpool::pool pool(10);
     
 
 	//#########################################################
-	//##################Run Question 1#########################
+	//################# Run Question 1 ########################
 	//#########################################################
-	timer.displayStart("Question 1");
-	timer.start();
-	
+	std::cout << "_____Question 1_____" << std::endl;
+	std::cout << "Loading Data from file: " << CSV_DATA_FILE << std::endl;
+	//load data from file
 	empContainer *emps = EmployeeCsvReader().loadData(CSV_DATA_FILE, 7184);
 	
-	timer.end();
-	timer.displayEnd();
-
-	//#########################################################
-	//##################Run Question 2#########################
-	//#########################################################
-	int *partialResponses = new int(0);
-	empContainer *valid = new empContainer();
-	valid->reserve(1603);
-
-	timer.displayStart("Question 2 - Strip all valid data");
-	timer.start();
-	//total reponses is 7184
-	//arrange the data so that all bad data is at end
-	CheckEmployeeData check(partialResponses, valid);
-
-	BOOST_FOREACH(  Employee* employee, *emps )
-	{
-		//None Threaded
-		//boost::bind<void>(boost::ref(check), employee )();
-		//Threaded
-		pool.schedule(boost::bind<void>( boost::ref(check), employee ));
-	}
-	pool.wait();
-
-	/*std::remove_copy_if(emps->begin(),
-		emps->end(), std::back_inserter(*valid),
-							CheckEmployeeData(partialResponses));*/
-	timer.end();
-	//output the counts
-	std::cout << "Partial Invalid Results count :" << *partialResponses << std::endl;
-	//All Invalid should be 5582
-	std::cout << "All Data Invalid count :" << (emps->size() - valid->size()) << std::endl;
-	//Valid should be 1602
-	std::cout << "Valid Data Count :" << valid->size() << std::endl;
 	
-	timer.displayEnd();
-
-	//Run Question 2 Save
-	std::cout << "Question 2 - Saving Data" << std::endl;
-	EmployeeCsvWriter().saveData(valid, CSV_VALID_DATA_FILE);
+	//#########################################################
+	//################# Run Question 2 ########################
+	//#########################################################
+	RunQuestion2(emps);
 
 	//#########################################################
 	//##################Run Question 3#########################
 	//#########################################################	
-	//Run Question 3 Load Valid Data
-	int lessThan30Count;
-	std::cout << "Question 3 - Load Data" << std::endl;
-	empContainer *validEmpsQ3 = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
-
-	//Run Question 3 
-	timer.displayStart("Question 3 - Count employees less than 30");
-	timer.start();
-	lessThan30Count = std::count_if(validEmpsQ3->begin(),
-						validEmpsQ3->end(), EmployeeUtils::LessThan(30));
-	timer.end();
-	std::cout << "Emps less than 30: " << lessThan30Count << std::endl;
-	timer.displayEnd();
+	RunQuestion3();
 
 	//#########################################################
 	//##################Run Question 4#########################
 	//#########################################################	
-
-	//Load 3 sets of questions for Question 4
-	std::cout << "Question 4 - Load Data" << std::endl;
-	empContainer *EmpsQ4_i = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
-	empContainer *EmpsQ4_ii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
-	empContainer *EmpsQ4_iii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
-
-	//Run Q4 i - Run Find Percentage Mean Score for sub Sets
-	timer.displayStart("Question 4i - % Mean sub Sets");
-	timer.start();
-	question4_i(EmpsQ4_i);
-	timer.end();
-	timer.displayEnd();
-
-	//Run Q4 ii - Strip anyone thats not 30-39
-	timer.displayStart("Question 4ii - % Mean sub Sets + Age30-39");
-	timer.start();
-	empContainer *EmpsQ4_ii_c = question4_ii(EmpsQ4_ii);
-	timer.end();
-	//save the data
-	std::cout << "Saving Data for Question 4ii" << std::endl;
-	EmployeeCsvWriter().saveSummary(EmpsQ4_ii_c, CSV_MEAN_DATA_FILE);
-	timer.displayEnd();
-	
-	//Run Q4 iii - age 30-39 + text summery
-	timer.displayStart("Question 4iii - 30-39+% Means txt");
-	timer.start();
-	empContainer *EmpsQ4_iii_c = question4_iii(EmpsQ4_iii);
-	timer.end();
-	//save data from Q4 iii
-	std::cout << "Saving data for Question 4iii" << std::endl;
-	timer.displayEnd();
- 	EmployeeCsvWriter().saveTextSummary(EmpsQ4_iii_c, CSV_RAG_DATA_FILE);
-
+	RunQuestion4();
 
 	//#########################################################
 	//##################Distroy everything#####################
 	//#########################################################	
+	std::cout << "Destroying Timer..." << std::endl;
+	MethodTimer::DeleteCurrent();
 
+	std::cout << "Program Finished" << std::endl;
 	std::cin.get();
 	//while(!_kbhit());//Makes my laptop like a oven
 	

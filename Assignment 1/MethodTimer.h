@@ -1,7 +1,8 @@
 #pragma once
 #include <windows.h>
+#include "Singleton.h"
 
-class MethodTimer
+class MethodTimer : public Singleton<MethodTimer>
 {
 private:
 	//declare some large ints
@@ -23,19 +24,12 @@ public:
 		QueryPerformanceFrequency(&f);
 
 	}
-	void displayEnd()
+	void displayTimeTaken()
 	{
 		//display time
 		std::cout << std::endl << "End, time = "
 					<< ((t2.QuadPart - t1.QuadPart) / (double)f.QuadPart)
 					<< " seconds" << std::endl << std::endl;		
 	}
-	void displayStart(const std::string &funcName)
-	{
-		//displays the start
-		std::cout << "______Start of '" << funcName << "'______" << std::endl;
-
-	}
-
 
 };
