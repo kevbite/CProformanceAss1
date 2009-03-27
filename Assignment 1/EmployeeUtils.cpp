@@ -11,8 +11,7 @@ void CheckEmployeeData::operator ()(Employee *emp)
 	}
 	if(emp->hasPartialInvalidData())
 	{
-		//boost::mutex::scoped_lock lock(count_mutex_);
-
+		boost::mutex::scoped_lock lock(count_mutex_);
 		++(*partialResponses_);
 		return;
 	}
@@ -29,7 +28,7 @@ EmployeeUtils::LessThan::LessThan(const int &age)
 
 bool EmployeeUtils::LessThan::operator ()(Employee *emp)
 {
-	return (*(emp->getAge())<age_);
+	return std::less<int>()(*(emp->getAge()), age_);
 }
 
 EmployeeUtils::EmployeeAgeBetween::EmployeeAgeBetween(const int &minAge, const int &maxAge)

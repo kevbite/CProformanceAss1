@@ -1,5 +1,7 @@
 #include "Employee.h"
 #include <numeric>
+#include <boost/foreach.hpp>
+
 Employee::Employee(void)
 {
 }
@@ -22,32 +24,58 @@ Employee::~Employee(void)
 }
 const bool Employee::hasTotalInvalidData() const
 {
-	bool result = !(age_!=0
-		|| lengthService_!=0 
-		|| !ethnicGroup_->empty()
-		|| !workBasis_->empty()
-		|| !hasTotalInvalidResults());
-	return result;
+	//if any of these fields have data then	
+	//the data must be not invalid
+	if(age_!=0)
+		return false;
+	if(!hasTotalInvalidResults())
+		return false;
+	if(lengthService_!=0 && *lengthService_!=0)
+		return false;
+	if(!ethnicGroup_->empty())
+		return false;
+	if(!workBasis_->empty())
+		return false;
+
+	//if we got this far all the data 
+	//in employee must be invalid
+	return true;
 
 }
 const bool Employee::hasTotalInvalidResults() const
 {
 	//sums all the results up and returns if = 0
+	
 	return std::accumulate(results_->begin(),results_->end(), 0) == 0;
 }
 const bool Employee::hasPartialInvalidData() const
 {
-	return (age_==0 || lengthService_==0 ||
+	return age_==0 || lengthService_==0 ||
 				ethnicGroup_->empty() ||
 				workBasis_->empty() || hasPartialInvalidResults()
-				|| *lengthService_==0);
+				|| *lengthService_==0;
 
 }
 const bool Employee::hasPartialInvalidResults() const
 {
+	//to calc vector size
+	int vecSize(0);
+	resultsContainer::iterator it = results_->begin();
+	resultsContainer::const_iterator end = results_->end();
+
+	while(it!=end)
+	{
+		if(*it==0)
+			return true;
+		++vecSize;
+		++it;
+	}
+
+	return vecSize!=70;
+
 	//check that the emp has 70 results & values are not -1
-	return (results_->size()!=70)||
-		(results_->rend()!=std::find( results_->rbegin(), results_->rend(), 0));
+	/*	return (results_->rend()!=std::find( results_->rbegin(), results_->rend(), 0))
+		|| (results_->size()!=70); */
 }
 const int *Employee::getPinNo() const
 {
