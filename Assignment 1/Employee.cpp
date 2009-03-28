@@ -206,16 +206,20 @@ void Employee::calcTextResultSets()
 		//•	Amber >= 40 and < 60,
 		//•	Green >= 60 and <= 100
 
-		if(sum<20) // < 40% mark
-		{
-			textResultSet_->push_back(&RED_TEXT);
-		}else if(sum>=30) // >= 60% mark
-		{
-			textResultSet_->push_back(&GREEN_TEXT);
-		}else //40% ~ 59%
-		{
-			textResultSet_->push_back(&AMBER_TEXT);
-		}
+		//add the result by the lookup table
+		textResultSet_->push_back(markTextTable[sum]);
+
+		//Old Method
+		//if(sum<20) // < 40% mark
+		//{
+		//	textResultSet_->push_back(&RED_TEXT);
+		//}else if(sum>=30) // >= 60% mark
+		//{
+		//	textResultSet_->push_back(&GREEN_TEXT);
+		//}else //40% ~ 59%
+		//{
+		//	textResultSet_->push_back(&AMBER_TEXT);
+		//}
 	}
 
 }
