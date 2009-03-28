@@ -21,6 +21,9 @@ Employee::~Employee(void)
 	delete textResultSet_;
 	
 }
+/*
+	Returns true if all data in this Employee is invalid
+*/
 const bool Employee::hasTotalInvalidData() const
 {
 	//if any of these fields have data then	
@@ -41,12 +44,20 @@ const bool Employee::hasTotalInvalidData() const
 	return true;
 
 }
+
+/*
+	returns true if this Employee has invalid results
+*/
 const bool Employee::hasTotalInvalidResults() const
 {
 	//sums all the results up and returns if = 0
 	
 	return std::accumulate(results_->begin(),results_->end(), 0) == 0;
 }
+
+/*
+	returns true if this Employee has partial invalid data
+*/
 const bool Employee::hasPartialInvalidData() const
 {
 	return age_==0 || lengthService_==0 ||
@@ -55,6 +66,10 @@ const bool Employee::hasPartialInvalidData() const
 				|| *lengthService_==0;
 
 }
+
+/*
+	returns true if this employee has partial invalid results
+*/
 const bool Employee::hasPartialInvalidResults() const
 {
 	//to calc vector size
@@ -101,18 +116,27 @@ const resultsContainer *Employee::getResults() const
 	return results_;
 }
 
+/*
+	get the result set mean percentage for this instance of employee
+	-requires previous call to calcResultSetPercentageMean
+*/
 rSetPercContainer *Employee::getResultSetPercentageMean()
 {
-	//if not in cached calc it
-	if(resultsSetsPerc_==0)  calcResultSetPercentageMean();
-
 	return resultsSetsPerc_;
 }
+
+/*
+	Calcs the sub Set means percentage this this instance of Employee
+*/
 void Employee::calcResultSetPercentageMean()
 {
 	//create the int and reserve memory
 	resultsSetsPerc_ = new std::vector<int>();
 	resultsSetsPerc_->reserve(7);
+	
+	
+	//##### Old Method #####
+
 	CalcSum sum;
 	//iterate though each Employee
 
@@ -127,34 +151,65 @@ void Employee::calcResultSetPercentageMean()
 		int perc = (*sum.getSum() * 2);
 		resultsSetsPerc_->push_back(perc);
 	}
+
+	/*
+	//work out the iterators needed
+	resultsContainer::const_iterator it(results_->begin());
+	resultsContainer::const_iterator end(results_->end());
+	
+	//loop though each
+	for(; it!=end; it+=10)
+	{
+		//sum is 50% of mark
+		int sum(std::accumulate(it,it+10, 0));
+		//times by 2 so we get %
+		sum *= 2;
+		//add it to the results
+		resultsSetsPerc_->push_back(sum);
+	}
+*/
 	return;
 }
+
+/*
+	Returns the Text results sets for this employee
+	-Requires previous call to calcTextResultSets
+*/
 textRSetPercContainer *Employee::getTextResultSets()
 {
-	//if not already loaded text data
-	if(textResultSet_==0)
-		calcTextResultSets();
-
 	return textResultSet_;
 }
+
+/*
+	Calculates the Text Result set
+	for this isntance of Employee
+*/
 void Employee::calcTextResultSets()
 {
+	//create new textRSetPercContainer
 	textResultSet_ = new textRSetPercContainer();
+	//reserve the space
 	textResultSet_->reserve(7);
 
-	for(resultsContainer::const_iterator start(results_->begin()); start!=results_->end(); start+=10)
-	{
-		int *sumPtr(std::for_each(start, start+10, CalcSum()).getSum());
+	//work out the iterators needed
+	resultsContainer::const_iterator it(results_->begin());
+	resultsContainer::const_iterator end(results_->end());
 	
+	//loop though each
+	for(; it!=end; it+=10)
+	{
+		//sum is 50% of mark
+		int sum(std::accumulate(it,it+10, 0));
+		
 		//Select the text based on
 		//•	Red < 40,
 		//•	Amber >= 40 and < 60,
 		//•	Green >= 60 and <= 100
 
-		if(*sumPtr<20) // < 40% mark
+		if(sum<20) // < 40% mark
 		{
 			textResultSet_->push_back(&RED_TEXT);
-		}else if(*sumPtr>=30) // >= 60% mark
+		}else if(sum>=30) // >= 60% mark
 		{
 			textResultSet_->push_back(&GREEN_TEXT);
 		}else //40% ~ 59%
@@ -165,6 +220,11 @@ void Employee::calcTextResultSets()
 
 }
 
+/*
+	clears cashed results
+	-resultsSetsPerc_
+	-textResultSet_
+*/
 void Employee::clearCached()
 {
 	delete resultsSetsPerc_;

@@ -34,7 +34,7 @@ public:
 	void displayTimeTaken()
 	{
 		//display time
-		std::cout << std::endl << "End, time = "
+		std::cout << std::endl << "Time: "
 					<< ((t2.QuadPart - t1.QuadPart) / (double)f.QuadPart)
 					<< " seconds" << std::endl << std::endl;		
 	}
