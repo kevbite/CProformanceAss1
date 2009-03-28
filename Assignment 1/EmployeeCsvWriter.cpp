@@ -1,13 +1,5 @@
 #include "EmployeeCsvWriter.h"
 
-EmployeeCsvWriter::EmployeeCsvWriter(void)
-{
-}
-
-EmployeeCsvWriter::~EmployeeCsvWriter(void)
-{
-}
-
 void EmployeeCsvWriter::saveData(const empContainer *emps, const char *filePath) const
 {
 	//open the file
