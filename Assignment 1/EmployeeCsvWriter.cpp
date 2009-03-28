@@ -87,12 +87,12 @@ void EmployeeCsvWriter::WriteCsvTextSummaryLine::operator ()(Employee *emp)
 	file_ << *(emp->getPinNo()) << ',';
 
 	//loop though each item in the result
-	for(int i(0); i < emp->getResultSetPercentageMean()->size(); ++i)
+	for(int i(0); i < emp->getTextResultSets()->size(); ++i)
 	{
 		//output the item to the stream
 		file_ << *((*emp->getTextResultSets())[i]);
 		//if its not the last item
-		if(i!=(emp->getResultSetPercentageMean()->size()-1))
+		if(i!=(emp->getTextResultSets()->size()-1))
 			//we need to add a commer
 			file_ << ',';
 	}

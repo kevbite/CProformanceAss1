@@ -21,7 +21,6 @@
 
 #include "MethodTimer.h"
 
-
 //File Paths
 const std::string CSV_DATA_FILE = "c:\\temp\\data.csv";
 const std::string CSV_VALID_DATA_FILE = "c:\\temp\\valid.csv";
@@ -68,8 +67,10 @@ void RunQuestion2(const empContainer *emps)
 	//#########################################################
 	//################# Run Question 2 ########################
 	//#########################################################
+	std::cout << "Question 2" << std::endl;
+	std::cout << "==========" << std::endl;
 
-	std::cout << "_____Question 2 - Strip all valid data______" << std::endl;
+	std::cout << "-Stripping all valid data" << std::endl;
 
 	//set the start time on timer
 	timer->start();
@@ -109,11 +110,11 @@ void RunQuestion2(const empContainer *emps)
 
 	//output the counts
 	//All Records should be 7184
-	std::cout << "All Record count :" << emps->size() << std::endl;
+	std::cout << "Record count:" << emps->size() << std::endl;
 	//Partial
-	std::cout << "Partial Invalid Results count :" << *partialResponses << std::endl;
+	std::cout << "Partial Invalid count:" << *partialResponses << std::endl;
 	//All Invalid should be 5582
-	std::cout << "Records with all fields Invalid :" << (emps->size() - valid->size()) - *partialResponses << std::endl;
+	std::cout << "All fields Invalid:" << (emps->size() - valid->size()) - *partialResponses << std::endl;
 	//Valid should be 1602
 	std::cout << "Valid Data Count :" << valid->size() << std::endl;
 	
@@ -121,7 +122,8 @@ void RunQuestion2(const empContainer *emps)
 	timer->displayTimeTaken();
 
 	//Run Question 2 Save
-	std::cout << "Question 2 - Saving Data" << std::endl;
+	std::cout << "Question 2: Saving Data" << std::endl;
+
 	EmployeeCsvWriter().saveData(valid, CSV_VALID_DATA_FILE.c_str());
 
 	//Clean Up things
@@ -130,17 +132,24 @@ void RunQuestion2(const empContainer *emps)
 	valid->clear();
 	//delete valid
 	delete valid;
+	valid = 0;
+	//delete partialResponses count int
+	delete partialResponses;
+	partialResponses = 0;
 }
 void RunQuestion3()
 {
 	//Set up somethings
 	MethodTimer *timer = MethodTimer::Current();
 
+	std::cout << "Question 3" << std::endl;
+	std::cout << "==========" << std::endl;
+	
 	//Load Valid Data
-	std::cout << "______Question 3 - Load Data______" << std::endl;
+	std::cout << "-Loading Data" << std::endl;
 	empContainer *validEmpsQ3 = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE.c_str(), 3616);
 
-	std::cout << "______Question 3 - Count employees less than 30____" << std::endl;
+	std::cout << "-Counting employees less than 30" << std::endl;
 
 	timer->start();
 	//count how manny emps as less than 30
@@ -149,7 +158,7 @@ void RunQuestion3()
 	//get end time
 	timer->end();
 	//display count
-	std::cout << "Emps less than 30: " << lessThan30Count << std::endl;
+	std::cout << std::endl << "Emps less than 30: " << lessThan30Count << std::endl;
 	//display time taken
 	timer->displayTimeTaken();
 
@@ -198,23 +207,27 @@ void RunQuestion4()
 	MethodTimer *timer = MethodTimer::Current();
 	//create our thread pool for subQuestions
 	boost::threadpool::pool pool(2);
+
+	std::cout << "Question 4" << std::endl;
+	std::cout << "==========" << std::endl;
 	
 	//Load 3 sets of questions for Question 4
-	std::cout << "_________Question 4 - Load Data__________" << std::endl;
+	std::cout << "-Loading Data" << std::endl;
 	empContainer *EmpsQ4_i = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE.c_str(), 3616);
 	empContainer *EmpsQ4_ii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE.c_str(), 3616);
 	empContainer *EmpsQ4_iii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE.c_str(), 3616);
 
-	std::cout << "_______Running all Question 4 subitems________" << std::endl;
+	std::cout << "-running subquestions i, ii, iii" << std::endl;
 	timer->start();
 	
+
+	//Run Q4 iii - age 30-39 + text summery
+	//question4_iii(EmpsQ4_iii, EmpsQ4_iii_c, &poolQii);
+	pool.schedule(boost::bind<void>(&RunQuestion4iii, EmpsQ4_iii));
 
 	//Runs Q4 ii - emps 30-39 and calc means sets
 	//question4_ii(EmpsQ4_ii, EmpsQ4_ii_c, &poolQii);
 	pool.schedule(boost::bind<void>(&RunQuestion4ii, EmpsQ4_ii));
-	//Run Q4 iii - age 30-39 + text summery
-	//question4_iii(EmpsQ4_iii, EmpsQ4_iii_c, &poolQii);
-	pool.schedule(boost::bind<void>(&RunQuestion4iii, EmpsQ4_iii));
 
 	//while we wait for the other threads to process we might as well complete
 	//the less heavy question before waiting for threads.
@@ -226,14 +239,16 @@ void RunQuestion4()
 	//stop the timer
 	timer->end();
 	timer->displayTimeTaken();
-
+	//output EmpQ4i Size
+	std::cout << "EmpQ4i Result Count: " << EmpsQ4_i->size() << std::endl;
 	//save data from Q4 iii
-	std::cout << "Saving All data for Question" << std::endl;
+	std::cout << "-Saving all data" << std::endl;
 
 	//Save the data we have just got
 	EmployeeCsvWriter().saveSummary(EmpsQ4_ii, CSV_MEAN_DATA_FILE.c_str());
  	EmployeeCsvWriter().saveTextSummary(EmpsQ4_iii, CSV_RAG_DATA_FILE.c_str());
 
+	std::cout << "-Cleaning up" << std::endl;
 	//clean stuff up :)
 	empContainerCleaner(EmpsQ4_i);
 	empContainerCleaner(EmpsQ4_ii);
@@ -251,18 +266,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	//timer for timing stuff
 	MethodTimer timer;
     
+	//output assignment name number and my name
+	std::cout << "Effective C++ Assignment 1 (Proformance)" << std::endl;
+	std::cout << "By Kevin Smith (15018229)" << std::endl << std::endl;
 
 	//#########################################################
 	//################# Run Question 1 ########################
 	//#########################################################
-	std::cout << "_____Question 1_____" << std::endl;
-	std::cout << "Loading Data from file: " << CSV_DATA_FILE << std::endl;
+	std::cout << "Question 1" << std::endl;
+	std::cout << "==========" << std::endl;
+	std::cout << "-Loading data from file: " << CSV_DATA_FILE << std::endl;
 	//load data from file
 	empContainer *emps = EmployeeCsvReader().loadData(CSV_DATA_FILE.c_str(), 7184);
 
 	if(emps->size()==0)//no items loaded
 	{
-		std::cout << "No data has been loaded, Processing Stopping" << std::endl;
+		std::cout << "No data has been loaded! Processing Stopping." << std::endl;
 		std::cout << "Press any key to quit";
 		std::cin.get();
 		return 1;
@@ -294,7 +313,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	//delete the stuff the container is pointing to
 	empContainerCleaner(emps);
 	
-	std::cout << "Destroying Timer..." << std::endl;
+	std::cout << "Cleanup: Destroying Timer..." << std::endl;
 	MethodTimer::DeleteCurrent();
 
 	std::cout << "Program Finished" << std::endl;

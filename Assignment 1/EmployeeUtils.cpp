@@ -21,11 +21,13 @@ void EmployeeUtils::CheckEmployeeData::operator ()(Employee *emp)
 	}
 	if(emp->hasPartialInvalidData())
 	{
+		//requires lock until end of scope
 		boost::mutex::scoped_lock lock(count_mutex_);
 		++(*partialResponses_);
 		return;
 	}
 
+	//requires lock until end of scope
 	boost::mutex::scoped_lock lock(pushback_mutex_);
 	valid_->push_back(emp);
 	return;
@@ -46,7 +48,8 @@ Checks to see if a employee's age is less than age_
 */
 bool EmployeeUtils::LessThan::operator ()(Employee *emp)
 {
-	return std::less<int>()(*(emp->getAge()), age_);
+	return *(emp->getAge()) < age_;
+	//return std::less<int>()(*(emp->getAge()), age_); <-- Slow
 }
 
 /*
@@ -77,7 +80,7 @@ Calls the Employee::getResultSetPercentageMean on the employee object given
 */
 void EmployeeUtils::CalcEmpMeanSets::operator()(Employee *emp) const
 {
-	emp->getResultSetPercentageMean();
+	emp->calcResultSetPercentageMean();
 }
 /*
 Calls the Employee::calcTextResultSets on the employee object given
