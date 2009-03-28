@@ -12,66 +12,49 @@
 #include <algorithm>
 #include <conio.h>
 
-#include <boost/foreach.hpp>
 #include <boost/bind.hpp> 
 #include "threadpool.hpp"
 
-
 #include "EmployeeCsvReader.h"
 #include "EmployeeCsvWriter.h"
-#include "DisplayEmployeesData.h"
 #include "EmployeeUtils.h"
 
 #include "MethodTimer.h"
 
-const char *CSV_DATA_FILE = "c:\\temp\\data.csv";
-const char *CSV_VALID_DATA_FILE = "c:\\temp\\valid.csv";
-const char *CSV_MEAN_DATA_FILE = "c:\\temp\\mean.csv";
-const char *CSV_RAG_DATA_FILE = "c:\\temp\\RAG.csv";
 
-void question4_i(empContainer *empsPtr)
+//File Paths
+const std::string CSV_DATA_FILE = "c:\\temp\\data.csv";
+const std::string CSV_VALID_DATA_FILE = "c:\\temp\\valid.csv";
+const std::string CSV_MEAN_DATA_FILE = "c:\\temp\\mean.csv";
+const std::string CSV_RAG_DATA_FILE = "c:\\temp\\RAG.csv";
+
+/*
+Deletes all the objects the container of pointers are pointing too
+*/
+void empContainerCleaner(empContainer *container)
 {
-	//Loop though each emp and calc their mean score sets
-	std::for_each(empsPtr->begin(), empsPtr->end(),
-		EmployeeUtils::CalcEmpMeanSets());
+	//loop though all the items
+	for(empContainer::const_iterator it =container->begin(); it!=container->end(); ++it)
+	{
+		//delete it
+		delete (*it);
+	}
+	//clear valid of the pointers
+	container->clear();
+	//delete valid
+	delete container;
+	//set pointer to null
+	container = 0;
 }
-
-void question4_ii(empContainer *emps, empContainer *results /*return*/)//gets emps 30-39 and calc means sets
+void Q2startSplit(empContainer::const_iterator &begin, empContainer::const_iterator &end,
+				  EmployeeUtils::CheckEmployeeData *check)
 {
-	//reserve the space
-	results->reserve(1400);
-	//arrange the data so emps 30-39 are at end
-	std::remove_copy_if(emps->begin(),emps->end(), 
-							std::back_inserter(*results),
-							EmployeeUtils::EmployeeAgeBetween(30, 39));
-
-	//get there mean results
-	std::for_each(results->begin(), results->end(), EmployeeUtils::CalcEmpMeanSets());
-}
-
-void question4_iii(empContainer *emps, empContainer *results /*return*/)//gets emps 30-39 and calc text means sets
-{
-	//reserve space
-	results->reserve(1400);
-	//arrange the data so emps 30-39 are at end
-	std::remove_copy_if(emps->begin(),emps->end(), 
-							std::back_inserter(*results),
-							EmployeeUtils::EmployeeAgeBetween(30, 39));
-
-	//get the means
-	std::for_each(results->begin(), results->end(), EmployeeUtils::CalcEmpTextMeanSets());
-	
-}
-
-void startSplit(empContainer::const_iterator &begin, empContainer::const_iterator &end,
-				CheckEmployeeData *check)
-{
-	
+	//loop though all the emps
 	for(empContainer::const_iterator it = begin;it!=end;++it)
+		//call the functor on the emp
 		(*check)(*it);
-
 }
-void RunQuestion2(const empContainer const *emps)
+void RunQuestion2(const empContainer *emps)
 {
 	//#########################################################
 	//###################### Set Up ###########################
@@ -100,16 +83,23 @@ void RunQuestion2(const empContainer const *emps)
 
 	//get the vec size
 	int vecSize(emps->size());
-	//get a split size if we split it 4 times
+	//get a split size if we split it in to the amount of threads in pool
 	int splitSize(vecSize/4);
 	//create the check functor
-	CheckEmployeeData check(partialResponses, valid);
+	EmployeeUtils::CheckEmployeeData check(partialResponses, valid);
 	
+	//get the iterator positions for each thread to process
+	empContainer::const_iterator it1 = emps->begin();
+	empContainer::const_iterator it2 = it1+splitSize;
+	empContainer::const_iterator it3 = it2+splitSize;
+	empContainer::const_iterator it4 = it3+splitSize;
+	empContainer::const_iterator it5 = emps->end();
+
 	//schedule stuff on to the pool
-	pool.schedule(boost::bind<void>(&startSplit, emps->begin(), emps->begin()+splitSize, &check));
-	pool.schedule(boost::bind<void>(&startSplit, emps->begin()+splitSize, emps->begin()+(splitSize*2), &check));
-	pool.schedule(boost::bind<void>(&startSplit, emps->begin()+(splitSize*2), emps->begin()+(splitSize*3), &check));
-	pool.schedule(boost::bind<void>(&startSplit, emps->begin()+(splitSize*3), emps->end(), &check));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it1, it2, &check));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it2, it3, &check));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it3, it4, &check));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it4, it5, &check));
 
 	//wait until the pool finishes all its processing
 	pool.wait();
@@ -132,8 +122,14 @@ void RunQuestion2(const empContainer const *emps)
 
 	//Run Question 2 Save
 	std::cout << "Question 2 - Saving Data" << std::endl;
-	EmployeeCsvWriter().saveData(valid, CSV_VALID_DATA_FILE);
+	EmployeeCsvWriter().saveData(valid, CSV_VALID_DATA_FILE.c_str());
 
+	//Clean Up things
+	//we will clear and delete the employees later in the main
+	//clear valid of the pointers
+	valid->clear();
+	//delete valid
+	delete valid;
 }
 void RunQuestion3()
 {
@@ -142,7 +138,7 @@ void RunQuestion3()
 
 	//Load Valid Data
 	std::cout << "______Question 3 - Load Data______" << std::endl;
-	empContainer *validEmpsQ3 = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
+	empContainer *validEmpsQ3 = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE.c_str(), 3616);
 
 	std::cout << "______Question 3 - Count employees less than 30____" << std::endl;
 
@@ -156,6 +152,44 @@ void RunQuestion3()
 	std::cout << "Emps less than 30: " << lessThan30Count << std::endl;
 	//display time taken
 	timer->displayTimeTaken();
+
+	//Clean up
+	empContainerCleaner(validEmpsQ3);
+
+}
+
+void RunQuestion4i(empContainer *empsPtr)
+{
+	//Loop though each emp and calc their mean score sets
+	std::for_each(empsPtr->begin(), empsPtr->end(),
+		EmployeeUtils::CalcEmpMeanSets());
+}
+
+void RunQuestion4ii(empContainer *emps)//gets emps 30-39 and calc means sets
+{
+	//arrange the data so emps 30-39 are at end
+	empContainer::iterator new_end =
+		remove_if(emps->begin(), emps->end(), EmployeeUtils::EmployeeAgeBetween(30, 39));
+
+	//erase the data at the end
+	emps->erase(new_end, emps->end());
+
+	//get there mean results
+	std::for_each(emps->begin(), emps->end(), EmployeeUtils::CalcEmpMeanSets());
+}
+
+void RunQuestion4iii(empContainer *emps)//gets emps 30-39 and calc text means sets
+{
+	//arrange the data so emps 30-39 are at end
+	empContainer::iterator new_end =
+		remove_if(emps->begin(), emps->end(), EmployeeUtils::EmployeeAgeBetween(30, 39));
+
+	//erase the data at the end
+	emps->erase(new_end, emps->end());
+
+	//get the means
+	std::for_each(emps->begin(), emps->end(), EmployeeUtils::CalcEmpTextMeanSets());
+	
 }
 void RunQuestion4()
 {
@@ -167,29 +201,25 @@ void RunQuestion4()
 	
 	//Load 3 sets of questions for Question 4
 	std::cout << "_________Question 4 - Load Data__________" << std::endl;
-	empContainer *EmpsQ4_i = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
-	empContainer *EmpsQ4_ii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
-	empContainer *EmpsQ4_iii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE, 3616);
+	empContainer *EmpsQ4_i = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE.c_str(), 3616);
+	empContainer *EmpsQ4_ii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE.c_str(), 3616);
+	empContainer *EmpsQ4_iii = EmployeeCsvReader().loadData(CSV_VALID_DATA_FILE.c_str(), 3616);
 
 	std::cout << "_______Running all Question 4 subitems________" << std::endl;
 	timer->start();
 	
-	//create our pointer that will return our results
-	empContainer *EmpsQ4_ii_c = new empContainer();
-	empContainer *EmpsQ4_iii_c = new empContainer();
-
 
 	//Runs Q4 ii - emps 30-39 and calc means sets
 	//question4_ii(EmpsQ4_ii, EmpsQ4_ii_c, &poolQii);
-	pool.schedule(boost::bind<void>(&question4_ii, EmpsQ4_ii, EmpsQ4_ii_c));
+	pool.schedule(boost::bind<void>(&RunQuestion4ii, EmpsQ4_ii));
 	//Run Q4 iii - age 30-39 + text summery
 	//question4_iii(EmpsQ4_iii, EmpsQ4_iii_c, &poolQii);
-	pool.schedule(boost::bind<void>(&question4_iii, EmpsQ4_iii, EmpsQ4_iii_c));
+	pool.schedule(boost::bind<void>(&RunQuestion4iii, EmpsQ4_iii));
 
 	//while we wait for the other threads to process we might as well complete
 	//the less heavy question before waiting for threads.
 	//Run Q4 i - Run Find Percentage Mean Score for sub Sets
-	question4_i(EmpsQ4_i);
+	RunQuestion4i(EmpsQ4_i);
 
 	//wait till all our threads have completed
 	pool.wait();
@@ -201,8 +231,14 @@ void RunQuestion4()
 	std::cout << "Saving All data for Question" << std::endl;
 
 	//Save the data we have just got
-	EmployeeCsvWriter().saveSummary(EmpsQ4_ii_c, CSV_MEAN_DATA_FILE);
- 	EmployeeCsvWriter().saveTextSummary(EmpsQ4_iii_c, CSV_RAG_DATA_FILE);
+	EmployeeCsvWriter().saveSummary(EmpsQ4_ii, CSV_MEAN_DATA_FILE.c_str());
+ 	EmployeeCsvWriter().saveTextSummary(EmpsQ4_iii, CSV_RAG_DATA_FILE.c_str());
+
+	//clean stuff up :)
+	empContainerCleaner(EmpsQ4_i);
+	empContainerCleaner(EmpsQ4_ii);
+	empContainerCleaner(EmpsQ4_iii);
+
 }
 int _tmain(int argc, _TCHAR* argv[])
 {
@@ -222,27 +258,42 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::cout << "_____Question 1_____" << std::endl;
 	std::cout << "Loading Data from file: " << CSV_DATA_FILE << std::endl;
 	//load data from file
-	empContainer *emps = EmployeeCsvReader().loadData(CSV_DATA_FILE, 7184);
-	
+	empContainer *emps = EmployeeCsvReader().loadData(CSV_DATA_FILE.c_str(), 7184);
+
+	if(emps->size()==0)//no items loaded
+	{
+		std::cout << "No data has been loaded, Processing Stopping" << std::endl;
+		std::cout << "Press any key to quit";
+		std::cin.get();
+		return 1;
+	}
+	std::cout << std::endl;
 	
 	//#########################################################
 	//################# Run Question 2 ########################
 	//#########################################################
 	RunQuestion2(emps);
+	std::cout << std::endl;
 
 	//#########################################################
 	//##################Run Question 3#########################
 	//#########################################################	
 	RunQuestion3();
+	std::cout << std::endl;
 
 	//#########################################################
 	//##################Run Question 4#########################
 	//#########################################################	
 	RunQuestion4();
+	std::cout << std::endl;
 
 	//#########################################################
 	//##################Distroy everything#####################
 	//#########################################################	
+
+	//delete the stuff the container is pointing to
+	empContainerCleaner(emps);
+	
 	std::cout << "Destroying Timer..." << std::endl;
 	MethodTimer::DeleteCurrent();
 

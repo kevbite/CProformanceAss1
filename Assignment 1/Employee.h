@@ -1,4 +1,5 @@
 #pragma once
+
 #include <string>
 #include <vector>
 #include <algorithm>
@@ -10,10 +11,12 @@
 
 #include "CalcSum.h"
 
+//some typedef for the containers
 typedef std::vector<int> resultsContainer;
 typedef std::vector<int> rSetPercContainer;
 typedef std::vector<const std::string*> textRSetPercContainer;
 
+//the strings to use for red, green and amber
 const std::string RED_TEXT = "Red";
 const std::string GREEN_TEXT = "Green";
 const std::string AMBER_TEXT = "Amber";
@@ -30,10 +33,6 @@ private:
 	resultsContainer *results_;
 	rSetPercContainer *resultsSetsPerc_;
 	textRSetPercContainer *textResultSet_;
-
-	const char *Employee::GreenText;
-	const char *Employee::RedText;
-	const char *Employee::Amber;
 
 public:
 	Employee(void);
@@ -55,7 +54,6 @@ public:
 	void calcTextResultSets();
 
 	void clearCached();
-
 
 	const bool hasTotalInvalidData() const;
 	const bool hasTotalInvalidResults() const;

@@ -1,9 +1,11 @@
 #pragma once
 
+/*	Keeps a running total of a sum	*/
 class CalcSum
 {
 private:
 	int *sum_;
+
 public:
 	CalcSum(void);
 	~CalcSum(void);

@@ -40,8 +40,6 @@ private:
 	};
 
 public:
-	EmployeeCsvWriter(void);
-	~EmployeeCsvWriter(void);
 	void saveData(const empContainer *emp, const char* filePath) const;
 	void saveSummary(const empContainer *emp, const char* filePath) const;
 	void saveTextSummary(const empContainer *emp, const char* filePath) const;

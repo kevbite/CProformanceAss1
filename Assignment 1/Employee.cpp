@@ -6,7 +6,8 @@ Employee::Employee(void)
 Employee::Employee(int *pinNo, int *age, double *los, std::string *ethnicGrp,
 				   std::string *workBasis, resultsContainer *results):
 pinNo_(pinNo), age_(age), lengthService_(los),
-ethnicGroup_(ethnicGrp), workBasis_(workBasis), results_(results),resultsSetsPerc_(0)
+ethnicGroup_(ethnicGrp), workBasis_(workBasis), results_(results),resultsSetsPerc_(0),
+textResultSet_(0)
  {}
 Employee::~Employee(void)
 {
@@ -126,19 +127,6 @@ void Employee::calcResultSetPercentageMean()
 		int perc = (*sum.getSum() * 2);
 		resultsSetsPerc_->push_back(perc);
 	}
-
-	//for(resultsContainer::const_iterator start(results_->begin()); start!=results_->end(); start+=10)
-	//{
-	//	std::cout << "start: " << *start << " end: " << *(start+10) << std::endl;
-	//	//Calc the sum for the Set
-	//	int *sumPtr(std::for_each(start, start+10, CalcSum()).getSum());
-
-	//	//double the result to get % as its currenly out of 50 marks
-	//	resultsSetsPerc_->push_back(*sumPtr * 2);
-
-	//	//delete the sum from memory
-	//	delete sumPtr;
-	//}
 	return;
 }
 textRSetPercContainer *Employee::getTextResultSets()

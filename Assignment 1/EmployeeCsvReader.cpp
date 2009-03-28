@@ -1,13 +1,5 @@
 #include "EmployeeCsvReader.h"
 
-EmployeeCsvReader::EmployeeCsvReader(void)
-{
-}
-
-EmployeeCsvReader::~EmployeeCsvReader(void)
-{
-}
-
 empContainer* EmployeeCsvReader::loadData(const char *filePath, const int &reserve) const
 {
 	std::fstream file(filePath, std::ios::in);
@@ -22,7 +14,7 @@ empContainer* EmployeeCsvReader::loadData(const char *filePath, const int &reser
 
 	// create an emp container
 	empContainer *employees = new empContainer();
-	employees->reserve(7200);
+	employees->reserve(reserve);
 
 	//load CSV data
 	parseCSV(file, employees);

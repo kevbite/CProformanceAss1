@@ -179,10 +179,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DisplayEmployeesData.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Employee.cpp"
 				>
 			</File>
@@ -214,10 +210,6 @@
 			>
 			<File
 				RelativePath=".\CalcSum.h"
-				>
-			</File>
-			<File
-				RelativePath=".\DisplayEmployeesData.h"
 				>
 			</File>
 			<File
