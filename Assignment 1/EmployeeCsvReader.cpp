@@ -33,19 +33,19 @@ void EmployeeCsvReader::parseCSV(std::istream &input, empContainer *output) cons
 	std::getline(input, csvLine);
 	// read every line from the stream
 	while( std::getline(input, csvLine) )
-	{
-		//wrap a stream round the line
-		std::istringstream csvStream(csvLine);
-		
+	{		
 		//parse the CSV line
-		Employee *tmpEmp(parseCSVLine(csvStream));
+		Employee *tmpEmp(parseCSVLine(csvLine));
 		
 		output->push_back(tmpEmp);
 	}
 }
 
-Employee *EmployeeCsvReader::parseCSVLine(std::istringstream &csvStream) const
+Employee *EmployeeCsvReader::parseCSVLine(std::string &csvLine) const
 {
+		//wrap a stream round the line
+		std::istringstream csvStream(csvLine);
+
 		//temp used for getting each string between ','s
 		std::string tmpColumn;
 
@@ -86,6 +86,6 @@ Employee *EmployeeCsvReader::parseCSVLine(std::istringstream &csvStream) const
 				results.push_back(atoi(tmpColumn.c_str()));
 		}
 		
-		return new Employee(pinNo, age,
+		return new Employee(csvLine, pinNo, age,
 							los, ethnicGroup, workBasis, results);
 }

@@ -13,7 +13,7 @@ class EmployeeCsvReader
 {
 private:
 	void parseCSV(std::istream &input, empContainer *output) const;
-	Employee *parseCSVLine(std::istringstream &csvStream) const;
+	Employee *parseCSVLine(std::string &csvStream) const;
 
 public:
 	empContainer* loadData(const char *filePath, const int &reserve) const;
