@@ -47,7 +47,7 @@ void EmployeeCsvWriter::WriteCsvLine::operator ()(Employee *emp)
 	file_ << *(emp->getPinNo()) << ',' << *(emp->getAge()) << ',' << *(emp->getLengthOfService()) << ',' << *(emp->getEthnicGroup()) << ',' << *(emp->getWorkBasis()) << ',';
 
 	//loop though each item in the result
-	for(int i(0); i < emp->getResults()->size(); ++i)
+	for(int i(0); i < (int)emp->getResults()->size(); ++i)
 	{
 		//output the item to the stream
 		file_ << (*(emp->getResults()))[i];
@@ -67,7 +67,7 @@ void EmployeeCsvWriter::WriteCsvSummaryLine::operator ()(Employee *emp)
 	file_ << *(emp->getPinNo()) << ',';
 
 	//loop though each item in the result
-	for(int i(0); i < emp->getResultSetPercentageMean()->size(); ++i)
+	for(int i(0); i < (int)emp->getResultSetPercentageMean()->size(); ++i)
 	{
 		//output the item to the stream
 		file_ << (*emp->getResultSetPercentageMean())[i];
@@ -87,7 +87,7 @@ void EmployeeCsvWriter::WriteCsvTextSummaryLine::operator ()(Employee *emp)
 	file_ << *(emp->getPinNo()) << ',';
 
 	//loop though each item in the result
-	for(int i(0); i < emp->getTextResultSets()->size(); ++i)
+	for(int i(0); i < (int)emp->getTextResultSets()->size(); ++i)
 	{
 		//output the item to the stream
 		file_ << *((*emp->getTextResultSets())[i]);

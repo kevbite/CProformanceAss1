@@ -20,7 +20,7 @@ typedef std::vector<const std::string*> textRSetPercContainer;
 const std::string RED_TEXT = "Red";
 const std::string GREEN_TEXT = "Green";
 const std::string AMBER_TEXT = "Amber";
-//look up for text Mark
+//look up table for text Mark
 static const std::string* markTextTable[] = 
 {
   &RED_TEXT, &RED_TEXT, &RED_TEXT, &RED_TEXT, &RED_TEXT, &RED_TEXT, &RED_TEXT, &RED_TEXT, &RED_TEXT, &RED_TEXT,
