@@ -48,7 +48,6 @@ void empContainerCleaner(empContainer *container)
 void Q2startSplit(empContainer::const_iterator &begin, empContainer::const_iterator &end,
 				  EmployeeUtils::CheckEmployeeData *check, int* partialCount)
 {
-	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);  
 
 	//loop though all the emps
 	for(empContainer::const_iterator it = begin;it!=end;++it)
