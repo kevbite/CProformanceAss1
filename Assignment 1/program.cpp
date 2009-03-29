@@ -48,6 +48,8 @@ void empContainerCleaner(empContainer *container)
 void Q2startSplit(empContainer::const_iterator &begin, empContainer::const_iterator &end,
 				  EmployeeUtils::CheckEmployeeData *check, int* partialCount)
 {
+	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);  
+
 	//loop though all the emps
 	for(empContainer::const_iterator it = begin;it!=end;++it)
 		//call the functor on the emp
@@ -97,22 +99,19 @@ void RunQuestion2(const empContainer *emps)
 	empContainer::const_iterator it5(emps->end());
 
 	//create the partialCounts
-	int partialCount1(0);
-	int partialCount2(0);
-	int partialCount3(0);
-	int partialCount4(0);
+	int partialCountArray[] = {0, 0, 0, 0};
 
 	//schedule stuff on to the pool
-	pool.schedule(boost::bind<void>(&Q2startSplit, it1, it2, &check, &partialCount1));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it2, it3, &check, &partialCount2));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it3, it4, &check, &partialCount3));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it4, it5, &check, &partialCount4));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it1, it2, &check, &partialCountArray[0]));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it2, it3, &check, &partialCountArray[1]));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it3, it4, &check, &partialCountArray[2]));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it4, it5, &check, &partialCountArray[3]));
 
 	//wait until the pool finishes all its processing
 	pool.wait();
 
 	//Add counts together
-	int partialCount(partialCount1 + partialCount2 + partialCount3 + partialCount4);
+	int partialCount(std::accumulate(partialCountArray, partialCountArray+4, 0));
 	//stop the timer
 	timer->end();
 
@@ -268,6 +267,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 	//Set priority of this process to realtime
 	SetPriorityClass(GetCurrentProcess(), REALTIME_PRIORITY_CLASS);
+	SetThreadPriority( GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);  
+
 	//timer for timing stuff
 	MethodTimer timer;
     

@@ -38,20 +38,23 @@ class Employee
 	
 private:
 	resultsContainer results_;
+	std::string actualData_;
 	std::string ethnicGroup_;
 	std::string workBasis_;
 	double lengthService_;
 	int pinNo_;
 	int age_;
+	static const int MIN_DATA_LENGTH=80;
 	rSetPercContainer *resultsSetsPerc_;
 	textRSetPercContainer *textResultSet_;
 
 public:
 	Employee(void);
-	Employee(int pinNo, int age, double los, std::string ethnicGrp,
+	Employee(std::string actualData, int pinNo, int age, double los, std::string ethnicGrp,
 		std::string workBasis, resultsContainer results);
 	~Employee(void);
 
+	const std::string *getActualData() const;
 	const int *getPinNo() const;
 	const int *getAge() const;
 	const double *getLengthOfService() const;
