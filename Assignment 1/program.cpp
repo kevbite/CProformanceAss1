@@ -46,12 +46,12 @@ void empContainerCleaner(empContainer *container)
 	container = 0;
 }
 void Q2startSplit(empContainer::const_iterator &begin, empContainer::const_iterator &end,
-				  EmployeeUtils::CheckEmployeeData *check)
+				  EmployeeUtils::CheckEmployeeData *check, int& partialCount)
 {
 	//loop though all the emps
 	for(empContainer::const_iterator it = begin;it!=end;++it)
 		//call the functor on the emp
-		(*check)(*it);
+		(*check)(*it, partialCount);
 }
 void RunQuestion2(const empContainer *emps)
 {
@@ -76,7 +76,7 @@ void RunQuestion2(const empContainer *emps)
 	timer->start();
 
 	//create a int to store partial Responses
-	int *partialResponses = new int(0);
+	//int *partialResponses = new int(0);
 	//create a new valid container
 	empContainer *valid = new empContainer();
 	//reserve some space
@@ -87,24 +87,32 @@ void RunQuestion2(const empContainer *emps)
 	//get a split size if we split it in to the amount of threads in pool
 	int splitSize(vecSize/4);
 	//create the check functor
-	EmployeeUtils::CheckEmployeeData check(partialResponses, valid);
+	EmployeeUtils::CheckEmployeeData check(valid);
 	
 	//get the iterator positions for each thread to process
-	empContainer::const_iterator it1 = emps->begin();
-	empContainer::const_iterator it2 = it1+splitSize;
-	empContainer::const_iterator it3 = it2+splitSize;
-	empContainer::const_iterator it4 = it3+splitSize;
-	empContainer::const_iterator it5 = emps->end();
+	empContainer::const_iterator it1(emps->begin());
+	empContainer::const_iterator it2(it1+splitSize);
+	empContainer::const_iterator it3(it2+splitSize);
+	empContainer::const_iterator it4(it3+splitSize);
+	empContainer::const_iterator it5(emps->end());
+
+	//create the partialCounts
+	int partialCount1(0);
+	int partialCount2(0);
+	int partialCount3(0);
+	int partialCount4(0);
 
 	//schedule stuff on to the pool
-	pool.schedule(boost::bind<void>(&Q2startSplit, it1, it2, &check));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it2, it3, &check));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it3, it4, &check));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it4, it5, &check));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it1, it2, &check, partialCount1));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it2, it3, &check, partialCount2));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it3, it4, &check, partialCount3));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it4, it5, &check, partialCount4));
 
 	//wait until the pool finishes all its processing
 	pool.wait();
 
+	//Add counts together
+	int partialCount(partialCount1 + partialCount2 + partialCount3 + partialCount4);
 	//stop the timer
 	timer->end();
 
@@ -112,9 +120,9 @@ void RunQuestion2(const empContainer *emps)
 	//All Records should be 7184
 	std::cout << "Record count:" << emps->size() << std::endl;
 	//Partial
-	std::cout << "Partial Invalid count:" << *partialResponses << std::endl;
+	std::cout << "Partial Invalid count:" << partialCount << std::endl;
 	//All Invalid should be 5582
-	std::cout << "All fields Invalid:" << (emps->size() - valid->size()) - *partialResponses << std::endl;
+	std::cout << "All fields Invalid:" << (emps->size() - valid->size()) - partialCount << std::endl;
 	//Valid should be 1602
 	std::cout << "Valid Data Count :" << valid->size() << std::endl;
 	
@@ -133,9 +141,6 @@ void RunQuestion2(const empContainer *emps)
 	//delete valid
 	delete valid;
 	valid = 0;
-	//delete partialResponses count int
-	delete partialResponses;
-	partialResponses = 0;
 }
 void RunQuestion3()
 {

@@ -14,14 +14,14 @@ public:
 	class CheckEmployeeData
 	{
 	private:
-		boost::mutex count_mutex_;//lock used for part count
+		//boost::mutex count_mutex_;//lock used for part count
 		boost::mutex pushback_mutex_;//lock used for container
-		int *partialResponses_;//partial count
+		//int *partialResponses_;//partial count
 		empContainer *valid_;//emp container
 
 	public:
-		CheckEmployeeData(int *,empContainer *valid);
-		void operator() (Employee*);
+		CheckEmployeeData(empContainer *valid);
+		void operator() (Employee *emp, int &partialCount);
 
 	};
 

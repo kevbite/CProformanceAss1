@@ -4,8 +4,8 @@
 Constructor for 
 EmployeeUtils::CheckEmployeeData::CheckEmployeeData
 */
-EmployeeUtils::CheckEmployeeData::CheckEmployeeData(int *partialResponses, empContainer *valid)
-:partialResponses_(partialResponses), valid_(valid)
+EmployeeUtils::CheckEmployeeData::CheckEmployeeData(empContainer *valid)
+:valid_(valid)
 {}
 
 /*
@@ -13,7 +13,7 @@ Checks if a user has valid data (Thread Safe)
 --Increments partialResponses_ if partial responses is found
 --If valid data then added to a valid_ container
 */
-void EmployeeUtils::CheckEmployeeData::operator ()(Employee *emp)
+void EmployeeUtils::CheckEmployeeData::operator ()(Employee *emp, int &partialCount)
 {
 	if(emp->hasTotalInvalidData())
 	{
@@ -22,8 +22,8 @@ void EmployeeUtils::CheckEmployeeData::operator ()(Employee *emp)
 	if(emp->hasPartialInvalidData())
 	{
 		//requires lock until end of scope
-		boost::mutex::scoped_lock lock(count_mutex_);
-		++(*partialResponses_);
+		//boost::mutex::scoped_lock lock(count_mutex_);
+		++partialCount;
 		return;
 	}
 
