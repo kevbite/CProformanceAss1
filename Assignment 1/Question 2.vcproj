@@ -117,6 +117,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
+				EnableFiberSafeOptimizations="true"
 				AdditionalIncludeDirectories="&quot;D:\Uni Year 4\Effective C++\threadpool-0_2_5-src\threadpool\boost&quot;;&quot;D:\Uni Year 4\Effective C++\boost_1_38_0&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
@@ -124,6 +125,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="2"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
