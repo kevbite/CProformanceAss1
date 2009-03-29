@@ -50,40 +50,40 @@ Employee *EmployeeCsvReader::parseCSVLine(std::istringstream &csvStream) const
 		std::string tmpColumn;
 
 		//declare Employee varibles
-		int *pinNo = 0;
-		int *age = 0;
-		double *los = 0;
-		std::string* ethnicGroup = new std::string();
-		std::string* workBasis = new std::string();
+		int pinNo = 0;
+		int age = 0;
+		double los = 0;
+		std::string ethnicGroup;
+		std::string workBasis;
 
 		//get the Pin No
 		std::getline(csvStream, tmpColumn, ',');
-		if(!tmpColumn.empty())
-			pinNo = new int(atoi(tmpColumn.c_str()));
+		//if(!tmpColumn.empty())
+			pinNo = atoi(tmpColumn.c_str());
 
 		//get the age
 		std::getline(csvStream, tmpColumn, ',');
-		if(!tmpColumn.empty())
-			age = new int(atoi(tmpColumn.c_str()));
+		//if(!tmpColumn.empty())
+			age = atoi(tmpColumn.c_str());
 
 		//get Length of Service
 		std::getline(csvStream, tmpColumn, ',');
-		if(!tmpColumn.empty())
-			los = new double(atof(tmpColumn.c_str()));
+		//if(!tmpColumn.empty())
+			los = atof(tmpColumn.c_str());
 
 		//get Ethnic Group
-		std::getline(csvStream, *ethnicGroup, ',');
+		std::getline(csvStream, ethnicGroup, ',');
 		//Get work Basis
-		std::getline(csvStream, *workBasis, ',');
+		std::getline(csvStream, workBasis, ',');
 		
 		//declare the container for the results
-		resultsContainer* results = new resultsContainer();
-		results->reserve(70);
+		resultsContainer results;
+		results.reserve(70);
 		//get all the results from the file
 		while( std::getline(csvStream, tmpColumn, ',') )
 		{
-			if(!tmpColumn.empty())
-				results->push_back(atoi(tmpColumn.c_str()));
+			//if(!tmpColumn.empty())
+				results.push_back(atoi(tmpColumn.c_str()));
 		}
 		
 		return new Employee(pinNo, age,

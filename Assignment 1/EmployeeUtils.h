@@ -21,7 +21,7 @@ public:
 
 	public:
 		CheckEmployeeData(empContainer *valid);
-		void operator() (Employee *emp, int &partialCount);
+		void operator() (Employee *emp, int *partialCount);
 
 	};
 

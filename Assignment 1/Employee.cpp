@@ -3,23 +3,16 @@
 Employee::Employee(void)
 {
 }
-Employee::Employee(int *pinNo, int *age, double *los, std::string *ethnicGrp,
-				   std::string *workBasis, resultsContainer *results):
+Employee::Employee(int pinNo, int age, double los, std::string ethnicGrp,
+				   std::string workBasis, resultsContainer results):
 pinNo_(pinNo), age_(age), lengthService_(los),
 ethnicGroup_(ethnicGrp), workBasis_(workBasis), results_(results),resultsSetsPerc_(0),
 textResultSet_(0)
  {}
 Employee::~Employee(void)
 {
-	delete pinNo_;
-	delete age_;
-	delete lengthService_;
-	delete ethnicGroup_;
-	delete workBasis_;
-	delete results_;
 	delete resultsSetsPerc_;
 	delete textResultSet_;
-	
 }
 /*
 	Returns true if all data in this Employee is invalid
@@ -30,13 +23,14 @@ const bool Employee::hasTotalInvalidData() const
 	//the data must be not invalid
 	if(age_!=0)
 		return false;
-	if(!hasTotalInvalidResults())
+	//check the first and size first
+	if(!(results_[0]==0 ||  results_.size()!=70 || hasTotalInvalidResults()))
 		return false;
-	if(lengthService_!=0 && *lengthService_!=0)
+	if(lengthService_!=0)
 		return false;
-	if(!ethnicGroup_->empty())
+	if(!ethnicGroup_.empty())
 		return false;
-	if(!workBasis_->empty())
+	if(!workBasis_.empty())
 		return false;
 
 	//if we got this far all the data 
@@ -52,7 +46,7 @@ const bool Employee::hasTotalInvalidResults() const
 {
 	//sums all the results up and returns if = 0
 	
-	return std::accumulate(results_->begin(),results_->end(), 0) == 0;
+	return std::accumulate(results_.begin(),results_.end(), 0) == 0;
 }
 
 /*
@@ -61,9 +55,8 @@ const bool Employee::hasTotalInvalidResults() const
 const bool Employee::hasPartialInvalidData() const
 {
 	return age_==0 || lengthService_==0 ||
-				ethnicGroup_->empty() ||
-				workBasis_->empty() || hasPartialInvalidResults()
-				|| *lengthService_==0;
+				ethnicGroup_.empty() ||
+				workBasis_.empty() || hasPartialInvalidResults();
 
 }
 
@@ -74,8 +67,8 @@ const bool Employee::hasPartialInvalidResults() const
 {
 	//to calc vector size
 	int vecSize(0);
-	resultsContainer::iterator it = results_->begin();
-	resultsContainer::const_iterator end = results_->end();
+	resultsContainer::const_iterator it = results_.begin();
+	resultsContainer::const_iterator end = results_.end();
 
 	while(it!=end)
 	{
@@ -93,27 +86,27 @@ const bool Employee::hasPartialInvalidResults() const
 }
 const int *Employee::getPinNo() const
 {
-	return pinNo_;
+	return &pinNo_;
 }
 const int *Employee::getAge() const
 {
-	return age_;
+	return &age_;
 }
 const double *Employee::getLengthOfService() const
 {
-	return lengthService_;
+	return &lengthService_;
 }
 const std::string *Employee::getEthnicGroup() const
 {
-	return ethnicGroup_;
+	return &ethnicGroup_;
 }
 const std::string *Employee::getWorkBasis() const
 {
-	return workBasis_;
+	return &workBasis_;
 }
 const resultsContainer *Employee::getResults() const
 {
-	return results_;
+	return &results_;
 }
 
 /*
@@ -134,7 +127,7 @@ void Employee::calcResultSetPercentageMean()
 	resultsSetsPerc_ = new std::vector<int>();
 	resultsSetsPerc_->reserve(7);
 	
-	
+	/*
 	//##### Old Method #####
 
 	CalcSum sum;
@@ -146,16 +139,16 @@ void Employee::calcResultSetPercentageMean()
 		sum.clear();
 		for( ; i<j; ++i)
 		{
-			sum((*results_)[i]);
+			sum(results_[i]);
 		}
 		int perc = (*sum.getSum() * 2);
 		resultsSetsPerc_->push_back(perc);
 	}
-
-	/*
+*/
+	
 	//work out the iterators needed
-	resultsContainer::const_iterator it(results_->begin());
-	resultsContainer::const_iterator end(results_->end());
+	resultsContainer::const_iterator it(results_.begin());
+	resultsContainer::const_iterator end(results_.end());
 	
 	//loop though each
 	for(; it!=end; it+=10)
@@ -167,7 +160,7 @@ void Employee::calcResultSetPercentageMean()
 		//add it to the results
 		resultsSetsPerc_->push_back(sum);
 	}
-*/
+
 	return;
 }
 
@@ -192,8 +185,8 @@ void Employee::calcTextResultSets()
 	textResultSet_->reserve(7);
 
 	//work out the iterators needed
-	resultsContainer::const_iterator it(results_->begin());
-	resultsContainer::const_iterator end(results_->end());
+	resultsContainer::const_iterator it(results_.begin());
+	resultsContainer::const_iterator end(results_.end());
 	
 	//loop though each
 	for(; it!=end; it+=10)

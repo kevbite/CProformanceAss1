@@ -37,19 +37,19 @@ class Employee
 {
 	
 private:
-	int *pinNo_;
-	int *age_;
-	double *lengthService_;
-	std::string *ethnicGroup_;
-	std::string *workBasis_;
-	resultsContainer *results_;
+	int pinNo_;
+	int age_;
+	double lengthService_;
+	std::string ethnicGroup_;
+	std::string workBasis_;
+	resultsContainer results_;
 	rSetPercContainer *resultsSetsPerc_;
 	textRSetPercContainer *textResultSet_;
 
 public:
 	Employee(void);
-	Employee(int *pinNo, int *age, double *los, std::string *ethnicGrp,
-		std::string *workBasis, resultsContainer *results);
+	Employee(int pinNo, int age, double los, std::string ethnicGrp,
+		std::string workBasis, resultsContainer results);
 	~Employee(void);
 
 	const int *getPinNo() const;

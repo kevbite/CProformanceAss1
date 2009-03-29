@@ -46,7 +46,7 @@ void empContainerCleaner(empContainer *container)
 	container = 0;
 }
 void Q2startSplit(empContainer::const_iterator &begin, empContainer::const_iterator &end,
-				  EmployeeUtils::CheckEmployeeData *check, int& partialCount)
+				  EmployeeUtils::CheckEmployeeData *check, int* partialCount)
 {
 	//loop though all the emps
 	for(empContainer::const_iterator it = begin;it!=end;++it)
@@ -103,10 +103,10 @@ void RunQuestion2(const empContainer *emps)
 	int partialCount4(0);
 
 	//schedule stuff on to the pool
-	pool.schedule(boost::bind<void>(&Q2startSplit, it1, it2, &check, partialCount1));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it2, it3, &check, partialCount2));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it3, it4, &check, partialCount3));
-	pool.schedule(boost::bind<void>(&Q2startSplit, it4, it5, &check, partialCount4));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it1, it2, &check, &partialCount1));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it2, it3, &check, &partialCount2));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it3, it4, &check, &partialCount3));
+	pool.schedule(boost::bind<void>(&Q2startSplit, it4, it5, &check, &partialCount4));
 
 	//wait until the pool finishes all its processing
 	pool.wait();
@@ -226,9 +226,9 @@ void RunQuestion4()
 	timer->start();
 	
 
-	//Run Q4 iii - age 30-39 + text summery
-	//question4_iii(EmpsQ4_iii, EmpsQ4_iii_c, &poolQii);
-	pool.schedule(boost::bind<void>(&RunQuestion4iii, EmpsQ4_iii));
+	//Run Q4 i - Run Find Percentage Mean Score for sub Sets
+	pool.schedule(boost::bind<void>(&RunQuestion4i, EmpsQ4_i));
+	
 
 	//Runs Q4 ii - emps 30-39 and calc means sets
 	//question4_ii(EmpsQ4_ii, EmpsQ4_ii_c, &poolQii);
@@ -236,8 +236,8 @@ void RunQuestion4()
 
 	//while we wait for the other threads to process we might as well complete
 	//the less heavy question before waiting for threads.
-	//Run Q4 i - Run Find Percentage Mean Score for sub Sets
-	RunQuestion4i(EmpsQ4_i);
+	//Run Q4 iii - age 30-39 + text summery
+	RunQuestion4iii( EmpsQ4_iii);
 
 	//wait till all our threads have completed
 	pool.wait();

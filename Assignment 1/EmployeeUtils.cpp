@@ -13,7 +13,7 @@ Checks if a user has valid data (Thread Safe)
 --Increments partialResponses_ if partial responses is found
 --If valid data then added to a valid_ container
 */
-void EmployeeUtils::CheckEmployeeData::operator ()(Employee *emp, int &partialCount)
+void EmployeeUtils::CheckEmployeeData::operator ()(Employee *emp, int *partialCount)
 {
 	if(emp->hasTotalInvalidData())
 	{
@@ -23,7 +23,7 @@ void EmployeeUtils::CheckEmployeeData::operator ()(Employee *emp, int &partialCo
 	{
 		//requires lock until end of scope
 		//boost::mutex::scoped_lock lock(count_mutex_);
-		++partialCount;
+		++(*partialCount);
 		return;
 	}
 
