@@ -37,12 +37,12 @@ class Employee
 {
 	
 private:
-	int pinNo_;
-	int age_;
-	double lengthService_;
+	resultsContainer results_;
 	std::string ethnicGroup_;
 	std::string workBasis_;
-	resultsContainer results_;
+	double lengthService_;
+	int pinNo_;
+	int age_;
 	rSetPercContainer *resultsSetsPerc_;
 	textRSetPercContainer *textResultSet_;
 
